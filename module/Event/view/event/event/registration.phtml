@@ -1,0 +1,129 @@
+<?php $this->headScript()->appendFile('https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.js') ?>
+<?php $this->headLink()->setStylesheet('https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.css') ?>
+<div id="calendar" class="jumbotron">
+</div>
+<div class="modal" tabindex="-1" role="dialog">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title"></h5>
+            </div>
+            <div class="modal-body row">
+                <div class="col-md-12">
+                    <?php $this->form = new \Event\Form\EventClientForm();
+                    $form = $this->form;
+                    $form->setAttribute('id', 'client-form');
+                    $form->prepare();
+
+                    // Assuming the "contact/process" route exists...
+                    $form->setAttribute('action', $this->url('registration'));
+
+                    // Set the method attribute for the form
+                    $form->setAttribute('method', 'post');
+
+                    // Get the form label plugin
+                    $formLabel = $this->plugin('formLabel');
+
+                    // Render the opening tag
+                    echo $this->form()->openTag($form);
+                    echo $this->formHidden($form->get('csrf'));
+                    echo $this->formHidden($form->get('event_id'));
+                    ?>
+                    <?php $fio = $form->get('fio'); ?>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <?= $formLabel->openTag() . $fio->getOption('label'); ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <?= $this->formInput($fio); ?>
+                            <?= $this->formElementErrors($fio); ?>
+                        </div>
+                    </div>
+
+
+                    <?php $email = $form->get('email'); ?>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <?= $formLabel->openTag() . $email->getOption('label'); ?>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-md-12">
+                            <?= $this->formInput($email); ?>
+                            <?= $this->formElementErrors($email); ?>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <?php $submit = new \Zend\Form\Element\Submit('submit');
+                $submit->setValue('Записаться');
+                $submit->setAttribute('class', 'btn btn-primary')?>
+                <?= $this->formSubmit($submit); ?>
+                <button id="close" type="button" class="btn btn-secondary" data-dismiss="modal">Закрыть</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<?php $this->headScript()->captureStart() ?>
+    $(document).ready(function(){
+        var events = new Array();
+        <?php foreach ($events as $event) :?>
+            events.push(<?= json_encode($event) ?>);
+        <?php endforeach; ?>
+        var calendarEl = document.getElementById('calendar');
+        var calendar = new FullCalendar.Calendar(calendarEl, {
+            headerToolbar: {
+                start: 'title',
+                center: '',
+                end: 'prev,next'
+            },
+            initialView: 'dayGridMonth',
+            locale: 'ru',
+            firstDay: 1,
+            events: {
+                events
+            },
+            eventClick: function(calEvent, jsEvent, view) {
+                //window.location.href = "/event/view?id=" + calEvent.id;
+                $('.modal-title').empty();
+                $('.modal-title').append('Записаться на '+calEvent.event.title);
+                $('.modal').show();
+                $('input[name=event_id]').val(calEvent.event.id);
+            }
+        });
+        calendar.render();
+        $('#close').on('click', function(){
+            $('.modal').hide();
+        });
+        $("#client-form").submit(function(){
+            console.log($('input[name=event_id]').val());
+            /*
+            $.post(url_client-form,
+            {
+                'name'  : $('input[name=name]').val(),
+                'email' : $('input[name=email]').val(),
+                'event' : $('input[name=event]').val()
+            },
+            function(resultJson){
+                $('.error').remove();
+                $('.success').remove();
+                var error = false;
+                if (!error){
+                    if (resultJson.success == 1){
+                        $("#loginform").prepend('<li class="success">Login Successfully</li>');
+                    }
+                }
+                if (resultJson.error == 1){
+                    $("#loginform").prepend('<li class="error">Invalid Credentials</li>');
+                }
+            }, 'json');
+
+            return false;
+            */
+        });
+    });
+<?php $this->headScript()->captureEnd() ?>
