@@ -6,11 +6,16 @@
         "framework",
         "zf2"
     ],
-    "homepage": "http://framework.zend.com/",
+    "homepage": "https://calenzend.osc-fr1.scalingo.io/",
     "require": {
         "php": "~7.1.33",
         "zendframework/zendframework": "~2.4.11",
         "zendframework/zend-db": "2.4.11",
         "ext-pdo": "*"
+    },
+    "config": {
+        "platform": {
+            "php": "7.1.33"
+        }
     }
 }
